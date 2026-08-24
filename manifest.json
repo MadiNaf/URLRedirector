@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "URL Redirector - Dev Tool",
+  "name": "URLRedirector",
   "version": "1.1.0",
-  "description": "Redirect test environment URLs to local development environments for bug reproduction and testing with real-time request history.",
+  "description": "Redirect URLs to local development environments for bug reproduction and testing with real-time request history.",
   "permissions": [
     "declarativeNetRequest",
     "storage",
