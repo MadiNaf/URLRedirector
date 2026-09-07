@@ -1,6 +1,6 @@
 # URL Redirector - Chrome Extension
 
-![image](./urlredirector.png)
+![image](./assets/URL_REDIRECTOR_1280x800.png)
 
 > **Dev Environment Switcher**: Easily redirect external test environment URLs to your locally running development server (e.g. `https://app-testenv.com` $\rightarrow$ `http://localhost:4200`) for bug reproduction and local feature testing with real-time request history.
 
