@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Redirector – Chrome Web Store Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== SHOWCASE PAGE SHELL ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #080c18;
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .showcase-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+      padding: 60px 32px 80px;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.08), transparent);
+    }
+
+    /* Card Wrapper */
+    .card-frame {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 24px 80px rgba(0,0,0,0.55),
+        0 0 40px rgba(99, 102, 241, 0.08);
+    }
+
+    .card-label {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .card-dim {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.2);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ===== EXTENSION UI CSS (isolated under .ext) ===== */
+    .ext {
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-surface-hover: #334155;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --bg-glass: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-color-focus: #6366f1;
+      --primary-color: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-light: rgba(99, 102, 241, 0.15);
+      --accent-green: #10b981;
+      --accent-green-bg: rgba(16, 185, 129, 0.15);
+      --accent-amber: #f59e0b;
+      --accent-amber-bg: rgba(245, 158, 11, 0.15);
+      --accent-red: #ef4444;
+      --accent-red-bg: rgba(239, 68, 68, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
+      --shadow-glow: 0 0 12px rgba(99, 102, 241, 0.3);
+
+      font-family: var(--font-family);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-main);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ext .app-container {
+      width: 440px;
+      height: 570px;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-primary);
+      background-image:
+        radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 50%),
+        radial-gradient(circle at bottom left, rgba(16,185,129,0.05), transparent 50%);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .ext .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-glass);
+      backdrop-filter: blur(8px);
+    }
+
+    .ext .brand { display: flex; align-items: center; gap: 10px; }
+
+    .ext .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary-color), #818cf8);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; box-shadow: var(--shadow-glow);
+    }
+
+    .ext .brand-text h1 { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+    .ext .brand-text .sub-title { font-size: 10px; color: var(--text-muted); display: block; margin-top: -2px; }
+
+    .ext .status-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 8px; border-radius: 20px;
+      background: var(--accent-green-bg);
+      border: 1px solid rgba(16,185,129,0.3);
+      font-size: 10.5px; font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    .ext .pulse-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background-color: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse-anim 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-anim {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Nav Tabs */
+    .ext .nav-tabs {
+      display: flex; padding: 6px 8px 0 8px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      gap: 2px;
+    }
+
+    .ext .tab-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 4px; padding: 8px 4px; background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-family);
+      font-size: 11px; font-weight: 600; cursor: default;
+      border-radius: 6px 6px 0 0; white-space: nowrap;
+    }
+
+    .ext .tab-btn.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      background: rgba(99,102,241,0.08);
+    }
+
+    .ext .tab-badge {
+      background: var(--bg-surface); color: var(--text-muted);
+      padding: 1px 5px; border-radius: 10px;
+      font-size: 9.5px; font-weight: 700;
+    }
+
+    .ext .tab-btn.active .tab-badge {
+      background: var(--primary-color); color: #fff;
+    }
+
+    /* Content */
+    .ext .content-area {
+      flex: 1; overflow-y: auto; padding: 12px; position: relative;
+    }
+
+    .ext .content-area::-webkit-scrollbar { width: 5px; }
+    .ext .content-area::-webkit-scrollbar-track { background: transparent; }
+    .ext .content-area::-webkit-scrollbar-thumb { background: var(--bg-surface-hover); border-radius: 4px; }
+
+    .ext .tab-content { display: none; }
+    .ext .tab-content.active { display: block; }
+
+    .ext .section-intro { margin-bottom: 10px; }
+    .ext .section-intro h2 { font-size: 13.5px; font-weight: 700; }
+    .ext .section-intro p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .ext .intro-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+
+    .ext .search-box {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-surface); border: 1px solid var(--border-color);
+      border-radius: 6px; padding: 4px 8px; width: 140px;
+    }
+    .ext .search-box.history-search { width: 100%; margin-top: 8px; }
+    .ext .search-box svg { color: var(--text-dim); }
+    .ext .search-box input {
+      width: 100%; background: transparent; border: none; outline: none;
+      color: var(--text-main); font-size: 11px; font-family: var(--font-family);
+    }
+
+    /* Cards */
+    .ext .apps-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .ext .app-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 10px 12px; backdrop-filter: blur(4px);
+    }
+    .ext .app-card.disabled { opacity: 0.65; }
+
+    .ext .card-top {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+    }
+
+    .ext .app-title {
+      font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .ext .active-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green);
+    }
+
+    /* History Card */
+    .ext .history-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 10px 12px;
+    }
+
+    .ext .history-meta {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+    }
+
+    .ext .history-time {
+      font-size: 10px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 4px; font-family: monospace;
+    }
+
+    .ext .history-app-badge {
+      font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+      background: var(--primary-light); color: #818cf8;
+    }
+
+    /* Toggle Switch */
+    .ext .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+    .ext .switch input { opacity: 0; width: 0; height: 0; }
+    .ext .slider {
+      position: absolute; cursor: default;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155; border-radius: 20px;
+    }
+    .ext .slider:before {
+      position: absolute; content: ""; height: 12px; width: 12px;
+      left: 3px; bottom: 3px; background: white; border-radius: 50%;
+    }
+    .ext input:checked + .slider { background-color: var(--primary-color); }
+    .ext input:checked + .slider:before { transform: translateX(16px); }
+
+    /* URL Flow */
+    .ext .url-flow {
+      display: flex; flex-direction: column; gap: 4px;
+      background: rgba(15,23,42,0.6); padding: 8px 10px;
+      border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .ext .url-node {
+      display: flex; align-items: center; gap: 6px;
+      font-family: monospace; font-size: 10.5px;
+    }
+
+    .ext .node-tag {
+      font-family: var(--font-family); font-size: 8.5px; font-weight: 700;
+      padding: 1px 4px; border-radius: 4px; text-transform: uppercase;
+    }
+    .ext .node-tag.source { background: var(--accent-amber-bg); color: var(--accent-amber); }
+    .ext .node-tag.target { background: var(--primary-light); color: #818cf8; }
+
+    .ext .url-text {
+      color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .ext .flow-arrow {
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-dim); margin: -2px 0;
+    }
+
+    .ext .card-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .ext .btn-action {
+      background: transparent; border: none; color: var(--text-muted);
+      font-family: var(--font-family); font-size: 10.5px;
+      padding: 3px 6px; border-radius: 4px; cursor: default;
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Form */
+    .ext .app-form { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+    .ext .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .ext .form-group label { font-size: 11px; font-weight: 600; }
+    .ext .field-hint { font-size: 10px; color: var(--text-dim); }
+
+    .ext .input-with-prefix {
+      display: flex; align-items: center; background: var(--bg-surface);
+      border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+    }
+
+    .ext .url-prefix {
+      padding: 7px 9px; background: rgba(0,0,0,0.2);
+      color: var(--text-muted); font-size: 10.5px; font-weight: 600;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .ext .app-form input[type="text"] {
+      width: 100%; padding: 7px 9px; background: var(--bg-surface);
+      border: 1px solid var(--border-color); border-radius: 8px;
+      color: var(--text-main); font-family: var(--font-family); font-size: 11.5px; outline: none;
+    }
+    .ext .input-with-prefix input[type="text"] { border: none; border-radius: 0; background: transparent; }
+
+    .ext .form-presets { display: flex; flex-direction: column; gap: 4px; }
+    .ext .preset-label { font-size: 10.5px; color: var(--text-muted); }
+    .ext .preset-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .ext .chip-btn {
+      background: var(--bg-surface); border: 1px solid var(--border-color);
+      color: var(--text-muted); font-family: monospace;
+      font-size: 10px; padding: 3px 7px; border-radius: 4px; cursor: default;
+    }
+    .ext .chip-btn.selected {
+      background: var(--primary-light); border-color: var(--primary-color); color: #818cf8;
+    }
+
+    /* Buttons */
+    .ext .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 5px; padding: 8px 12px; border-radius: 8px;
+      font-family: var(--font-family); font-size: 11.5px; font-weight: 600;
+      cursor: default; border: none;
+    }
+    .ext .btn-sm { padding: 4px 8px; font-size: 10.5px; border-radius: 6px; }
+    .ext .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+      color: #fff; box-shadow: var(--shadow-glow);
+    }
+    .ext .btn-secondary {
+      background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-main);
+    }
+
+    /* Toast (visible) */
+    .ext .toast {
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; border: 1px solid var(--primary-color);
+      color: var(--text-main); padding: 7px 14px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; box-shadow: var(--shadow-md);
+      z-index: 200;
+    }
+
+    /* ===== SHOWCASE CARD CONTAINERS ===== */
+    .card-1280x800 { width: 1280px; height: 800px; }
+    .card-440x280 { width: 440px; height: 280px; }
+    .card-1400x560 { width: 1400px; height: 560px; }
+
+    /* Card 4 banner layout */
+    .banner-scene {
+      width: 100%; height: 100%;
+      background: linear-gradient(145deg, #0d1225 0%, #0f1a33 40%, #111936 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      gap: 56px; padding: 0 60px;
+    }
+
+    .banner-scene::before {
+      content: '';
+      position: absolute; top: -120px; left: 30%;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.1), transparent 65%);
+      pointer-events: none;
+    }
+
+    .banner-scene::after {
+      content: '';
+      position: absolute; bottom: -80px; right: 10%;
+      width: 350px; height: 350px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.06), transparent 65%);
+      pointer-events: none;
+    }
+
+    .banner-text { max-width: 440px; z-index: 2; }
+    .banner-text .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: #6366f1;
+      margin-bottom: 14px; opacity: 0.9;
+    }
+    .banner-text .badge svg { opacity: 0.7; }
+    .banner-text h2 {
+      font-size: 32px; font-weight: 800; letter-spacing: -0.5px;
+      line-height: 1.15; margin-bottom: 14px;
+      background: linear-gradient(135deg, #f8fafc, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .banner-text p { font-size: 14.5px; line-height: 1.6; color: #94a3b8; margin-bottom: 18px; }
+
+    /* Card 1 & 3 interior layout */
+    .wide-scene {
+      width: 100%; height: 100%;
+      background: linear-gradient(160deg, #0d1225 0%, #111936 50%, #0f172a 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    .wide-scene::before {
+      content: '';
+      position: absolute; top: -200px; right: -100px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .wide-scene::after {
+      content: '';
+      position: absolute; bottom: -100px; left: -50px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(16,185,129,0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    .scene-content {
+      display: flex; align-items: center; gap: 60px;
+      position: relative; z-index: 2;
+    }
+
+    .scene-text { max-width: 420px; }
+    .scene-text .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--primary-color, #6366f1);
+      margin-bottom: 14px; opacity: 0.9;
+    }
+    .scene-text .badge svg { opacity: 0.7; }
+    .scene-text h2 {
+      font-size: 36px; font-weight: 800; letter-spacing: -0.5px;
+      line-height: 1.15; margin-bottom: 16px;
+      background: linear-gradient(135deg, #f8fafc, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .scene-text p { font-size: 15px; line-height: 1.6; color: #94a3b8; margin-bottom: 20px; }
+
+    .feature-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .feature-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.15);
+      font-size: 11.5px; font-weight: 600; color: #818cf8;
+    }
+
+    .popup-mock-frame {
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    /* Card 2 compact */
+    .compact-scene {
+      width: 100%; height: 100%;
+      background: linear-gradient(160deg, #0d1225, #131b35);
+      display: flex; align-items: center; justify-content: center;
+      gap: 20px; padding: 0 24px;
+      position: relative; overflow: hidden;
+    }
+
+    .compact-scene::before {
+      content: '';
+      position: absolute; top: -60px; right: -40px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+    }
+
+    .compact-text { max-width: 170px; z-index: 2; }
+    .compact-text h3 {
+      font-size: 16px; font-weight: 800; letter-spacing: -0.3px;
+      line-height: 1.2; margin-bottom: 6px;
+      background: linear-gradient(135deg, #f8fafc, #cbd5e1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .compact-text p { font-size: 10.5px; line-height: 1.45; color: #64748b; }
+
+    .compact-popup {
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+      flex-shrink: 0; z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase-page">
+
+    <!-- ===================== CARD 1: 1280×800 – Active Redirections (Hero) ===================== -->
+    <div class="card-frame card-1280x800">
+      <span class="card-label">Feature Overview</span>
+      <span class="card-dim">1280 × 800</span>
+      <div class="wide-scene">
+        <div class="scene-content">
+          <div class="scene-text">
+            <div class="badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              URL Redirector
+            </div>
+            <h2>Redirect test URLs to&nbsp;your local&nbsp;dev&nbsp;server</h2>
+            <p>Instantly route staging & test environment traffic to your localhost. Reproduce bugs, test fixes, and develop locally — all without changing a single line of backend config.</p>
+            <div class="feature-pills">
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Subpath Preserved
+              </span>
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Real-time History
+              </span>
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Zero-latency
+              </span>
+            </div>
+          </div>
+
+          <!-- Popup Mock: Active Tab with 3 running redirections -->
+          <div class="popup-mock-frame ext">
+            <div class="app-container">
+              <header class="app-header">
+                <div class="brand">
+                  <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                  </div>
+                  <div class="brand-text">
+                    <h1>URL Redirector</h1>
+                    <span class="sub-title">Dev Environment Switcher</span>
+                  </div>
+                </div>
+                <div class="status-chip">
+                  <span class="pulse-dot"></span>
+                  <span>3 Active</span>
+                </div>
+              </header>
+              <nav class="nav-tabs">
+                <button class="tab-btn active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Active
+                  <span class="tab-badge">3</span>
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  All Apps <span class="tab-badge">5</span>
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add New
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
+                  History <span class="tab-badge">12</span>
+                </button>
+              </nav>
+              <main class="content-area">
+                <section class="tab-content active">
+                  <div class="section-intro">
+                    <h2>Active Redirections</h2>
+                    <p>Currently routing traffic from test environment to local host.</p>
+                  </div>
+                  <div class="apps-list">
+                    <!-- Card 1 -->
+                    <div class="app-card">
+                      <div class="card-top">
+                        <div class="app-title"><span class="active-dot"></span> E-Commerce Platform</div>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">FROM</span><span class="url-text">https://shop-staging.acme.io</span></div>
+                        <div class="flow-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TO</span><span class="url-text">http://localhost:4200</span></div>
+                      </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="app-card">
+                      <div class="card-top">
+                        <div class="app-title"><span class="active-dot"></span> Admin Dashboard</div>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">FROM</span><span class="url-text">https://admin-test.internal.dev</span></div>
+                        <div class="flow-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TO</span><span class="url-text">http://localhost:3000</span></div>
+                      </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="app-card">
+                      <div class="card-top">
+                        <div class="app-title"><span class="active-dot"></span> API Gateway</div>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">FROM</span><span class="url-text">https://api.staging.company.com</span></div>
+                        <div class="flow-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TO</span><span class="url-text">http://localhost:8080</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </main>
+              <div class="toast">✓ Redirection enabled</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CARD 2: 440×280 – Compact Promotional Tile ===================== -->
+    <div class="card-frame card-440x280">
+      <span class="card-label">Promo Tile</span>
+      <span class="card-dim">440 × 280</span>
+      <div class="compact-scene">
+        <div class="compact-text">
+          <h3>Test env → Localhost</h3>
+          <p>Route staging traffic to your local dev server. Subpaths &amp; queries preserved automatically.</p>
+        </div>
+        <div class="compact-popup ext">
+          <div class="app-container" style="width: 220px; height: 240px; border-radius: 10px;">
+            <header class="app-header" style="padding: 8px 10px;">
+              <div class="brand">
+                <div class="logo-icon" style="width: 22px; height: 22px; border-radius: 6px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                </div>
+                <div class="brand-text">
+                  <h1 style="font-size: 10px;">URL Redirector</h1>
+                </div>
+              </div>
+              <div class="status-chip" style="padding: 2px 5px; font-size: 8px;">
+                <span class="pulse-dot" style="width: 4px; height: 4px;"></span>
+                <span>2</span>
+              </div>
+            </header>
+            <main class="content-area" style="padding: 8px;">
+              <div class="apps-list" style="gap: 6px;">
+                <div class="app-card" style="padding: 7px 8px;">
+                  <div class="card-top" style="margin-bottom: 4px;">
+                    <div class="app-title" style="font-size: 9.5px;"><span class="active-dot" style="width: 4px; height: 4px;"></span> E-Commerce</div>
+                    <label class="switch" style="width: 26px; height: 14px;">
+                      <input type="checkbox" checked disabled>
+                      <span class="slider" style="border-radius: 14px;"><style>.compact-popup .slider:before{height:8px!important;width:8px!important;left:3px!important;bottom:3px!important;}.compact-popup input:checked+.slider:before{transform:translateX(12px)!important;}</style></span>
+                    </label>
+                  </div>
+                  <div class="url-flow" style="padding: 5px 6px; gap: 2px;">
+                    <div class="url-node" style="font-size: 8px;"><span class="node-tag source" style="font-size: 7px; padding: 0 3px;">FROM</span><span class="url-text">shop-staging.acme.io</span></div>
+                    <div class="url-node" style="font-size: 8px;"><span class="node-tag target" style="font-size: 7px; padding: 0 3px;">TO</span><span class="url-text">localhost:4200</span></div>
+                  </div>
+                </div>
+                <div class="app-card" style="padding: 7px 8px;">
+                  <div class="card-top" style="margin-bottom: 4px;">
+                    <div class="app-title" style="font-size: 9.5px;"><span class="active-dot" style="width: 4px; height: 4px;"></span> Admin Panel</div>
+                    <label class="switch" style="width: 26px; height: 14px;">
+                      <input type="checkbox" checked disabled>
+                      <span class="slider" style="border-radius: 14px;"></span>
+                    </label>
+                  </div>
+                  <div class="url-flow" style="padding: 5px 6px; gap: 2px;">
+                    <div class="url-node" style="font-size: 8px;"><span class="node-tag source" style="font-size: 7px; padding: 0 3px;">FROM</span><span class="url-text">admin-test.internal.dev</span></div>
+                    <div class="url-node" style="font-size: 8px;"><span class="node-tag target" style="font-size: 7px; padding: 0 3px;">TO</span><span class="url-text">localhost:3000</span></div>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CARD 4: 1400×560 – All Apps Library (Feature Highlight) ===================== -->
+    <div class="card-frame card-1400x560">
+      <span class="card-label">App Management</span>
+      <span class="card-dim">1400 × 560</span>
+      <div class="banner-scene">
+
+        <!-- Left: Text -->
+        <div class="banner-text">
+          <div class="badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Applications Library
+          </div>
+          <h2>Manage all your redirections in one place</h2>
+          <p>Search, enable, disable, edit, and remove URL mapping rules instantly. Keep your local development workflow organized across multiple projects.</p>
+          <div class="feature-pills">
+            <span class="feature-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Search & Filter
+            </span>
+            <span class="feature-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit In-place
+            </span>
+            <span class="feature-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64A9 9 0 0 1 20.77 15m-2.41 3.36A9 9 0 0 1 3.23 9"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              Toggle On / Off
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Popup Mock — All Apps Tab -->
+        <div class="popup-mock-frame ext" style="z-index: 2;">
+          <div class="app-container">
+            <header class="app-header">
+              <div class="brand">
+                <div class="logo-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                </div>
+                <div class="brand-text">
+                  <h1>URL Redirector</h1>
+                  <span class="sub-title">Dev Environment Switcher</span>
+                </div>
+              </div>
+              <div class="status-chip">
+                <span class="pulse-dot"></span>
+                <span>3 Active</span>
+              </div>
+            </header>
+            <nav class="nav-tabs">
+              <button class="tab-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Active <span class="tab-badge">3</span>
+              </button>
+              <button class="tab-btn active">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                All Apps <span class="tab-badge">5</span>
+              </button>
+              <button class="tab-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add New
+              </button>
+              <button class="tab-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
+                History <span class="tab-badge">12</span>
+              </button>
+            </nav>
+            <main class="content-area">
+              <section class="tab-content active">
+                <div class="section-intro">
+                  <div class="intro-header">
+                    <h2>Applications Library</h2>
+                    <div class="search-box">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input type="text" placeholder="Search apps..." readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="apps-list">
+                  <!-- App 1 — enabled -->
+                  <div class="app-card">
+                    <div class="card-top">
+                      <div class="app-title"><span class="active-dot"></span> E-Commerce Platform</div>
+                      <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                    <div class="url-flow">
+                      <div class="url-node"><span class="node-tag source">SRC</span><span class="url-text">https://shop-staging.acme.io</span></div>
+                      <div class="url-node"><span class="node-tag target">TGT</span><span class="url-text">http://localhost:4200</span></div>
+                    </div>
+                    <div class="card-actions">
+                      <span class="btn-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</span>
+                      <span class="btn-action delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                    </div>
+                  </div>
+                  <!-- App 2 — enabled -->
+                  <div class="app-card">
+                    <div class="card-top">
+                      <div class="app-title"><span class="active-dot"></span> Admin Dashboard</div>
+                      <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                    <div class="url-flow">
+                      <div class="url-node"><span class="node-tag source">SRC</span><span class="url-text">https://admin-test.internal.dev</span></div>
+                      <div class="url-node"><span class="node-tag target">TGT</span><span class="url-text">http://localhost:3000</span></div>
+                    </div>
+                    <div class="card-actions">
+                      <span class="btn-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</span>
+                      <span class="btn-action delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                    </div>
+                  </div>
+                  <!-- App 3 — disabled -->
+                  <div class="app-card disabled">
+                    <div class="card-top">
+                      <div class="app-title">Notifications Service</div>
+                      <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
+                    </div>
+                    <div class="url-flow">
+                      <div class="url-node"><span class="node-tag source">SRC</span><span class="url-text">https://notify.qa.example.org</span></div>
+                      <div class="url-node"><span class="node-tag target">TGT</span><span class="url-text">http://localhost:9090</span></div>
+                    </div>
+                    <div class="card-actions">
+                      <span class="btn-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</span>
+                      <span class="btn-action delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </main>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== CARD 3: 1280×800 – History & Add New (Feature Highlight) ===================== -->
+    <div class="card-frame card-1280x800">
+      <span class="card-label">Feature Highlight</span>
+      <span class="card-dim">1280 × 800</span>
+      <div class="wide-scene">
+        <div class="scene-content">
+
+          <!-- Popup Mock: Add New Tab -->
+          <div class="popup-mock-frame ext">
+            <div class="app-container">
+              <header class="app-header">
+                <div class="brand">
+                  <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                  </div>
+                  <div class="brand-text">
+                    <h1>URL Redirector</h1>
+                    <span class="sub-title">Dev Environment Switcher</span>
+                  </div>
+                </div>
+                <div class="status-chip">
+                  <span class="pulse-dot"></span>
+                  <span>3 Active</span>
+                </div>
+              </header>
+              <nav class="nav-tabs">
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Active <span class="tab-badge">3</span>
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  All Apps <span class="tab-badge">5</span>
+                </button>
+                <button class="tab-btn active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add New
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
+                  History <span class="tab-badge">12</span>
+                </button>
+              </nav>
+              <main class="content-area">
+                <section class="tab-content active">
+                  <div class="section-intro">
+                    <h2>Add New Application</h2>
+                    <p>Define source test environment URL and target local running server.</p>
+                  </div>
+                  <div class="app-form">
+                    <div class="form-group">
+                      <label>Application Name</label>
+                      <input type="text" value="Payment Gateway" readonly style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); padding: 7px 9px; font-size: 11.5px; font-family: var(--font-family); outline: none; width: 100%;">
+                      <span class="field-hint">A recognizable name for your app project</span>
+                    </div>
+                    <div class="form-group">
+                      <label>Source URL (Test Environment)</label>
+                      <div class="input-with-prefix">
+                        <span class="url-prefix">https://</span>
+                        <input type="text" value="pay-staging.stripe-demo.io" readonly style="border: none; background: transparent; color: var(--text-main); padding: 7px 9px; font-size: 11.5px; font-family: var(--font-family); outline: none; width: 100%;">
+                      </div>
+                      <span class="field-hint">The external URL you navigate to in your browser</span>
+                    </div>
+                    <div class="form-group">
+                      <label>Target URL (Local Environment)</label>
+                      <div class="input-with-prefix" style="border-color: var(--border-color-focus); box-shadow: 0 0 0 2px rgba(99,102,241,0.2);">
+                        <span class="url-prefix">http://</span>
+                        <input type="text" value="localhost:5173" readonly style="border: none; background: transparent; color: var(--text-main); padding: 7px 9px; font-size: 11.5px; font-family: var(--font-family); outline: none; width: 100%;">
+                      </div>
+                      <span class="field-hint">Your locally running dev server address</span>
+                    </div>
+                    <div class="form-presets">
+                      <span class="preset-label">Quick local ports:</span>
+                      <div class="preset-chips">
+                        <span class="chip-btn">:4200 (Angular)</span>
+                        <span class="chip-btn">:3000 (React/Next)</span>
+                        <span class="chip-btn selected">:5173 (Vite)</span>
+                        <span class="chip-btn">:8080 (Vue)</span>
+                      </div>
+                    </div>
+                    <span class="btn btn-primary">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Save & Add Application
+                    </span>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>
+
+          <!-- Right Side: History Popup Mock -->
+          <div class="popup-mock-frame ext">
+            <div class="app-container">
+              <header class="app-header">
+                <div class="brand">
+                  <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 3 21 3 21 8"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                  </div>
+                  <div class="brand-text">
+                    <h1>URL Redirector</h1>
+                    <span class="sub-title">Dev Environment Switcher</span>
+                  </div>
+                </div>
+                <div class="status-chip">
+                  <span class="pulse-dot"></span>
+                  <span>3 Active</span>
+                </div>
+              </header>
+              <nav class="nav-tabs">
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Active <span class="tab-badge">3</span>
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  All Apps <span class="tab-badge">5</span>
+                </button>
+                <button class="tab-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add New
+                </button>
+                <button class="tab-btn active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
+                  History <span class="tab-badge">12</span>
+                </button>
+              </nav>
+              <main class="content-area">
+                <section class="tab-content active">
+                  <div class="section-intro">
+                    <div class="intro-header">
+                      <div>
+                        <h2>Intercepted History</h2>
+                        <p>Real-time log of original URLs redirected to local targets.</p>
+                      </div>
+                      <span class="btn btn-secondary btn-sm">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Clear
+                      </span>
+                    </div>
+                    <div class="search-box history-search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input type="text" placeholder="Search history URLs..." readonly>
+                    </div>
+                  </div>
+                  <div class="apps-list">
+                    <!-- History 1 -->
+                    <div class="history-card">
+                      <div class="history-meta">
+                        <span class="history-time">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          2026-09-07 21:58:14
+                        </span>
+                        <span class="history-app-badge">E-Commerce Platform</span>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">ORIGINAL</span><span class="url-text">https://shop-staging.acme.io/cart?id=7731</span></div>
+                        <div class="flow-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TARGET</span><span class="url-text">http://localhost:4200/cart?id=7731</span></div>
+                      </div>
+                      <div class="card-actions">
+                        <span class="btn-action"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy URL</span>
+                        <span class="btn-action delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                      </div>
+                    </div>
+                    <!-- History 2 -->
+                    <div class="history-card">
+                      <div class="history-meta">
+                        <span class="history-time">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          2026-09-07 21:55:02
+                        </span>
+                        <span class="history-app-badge">Admin Dashboard</span>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">ORIGINAL</span><span class="url-text">https://admin-test.internal.dev/users?role=admin</span></div>
+                        <div class="flow-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TARGET</span><span class="url-text">http://localhost:3000/users?role=admin</span></div>
+                      </div>
+                      <div class="card-actions">
+                        <span class="btn-action"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy URL</span>
+                        <span class="btn-action delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                      </div>
+                    </div>
+                    <!-- History 3 -->
+                    <div class="history-card">
+                      <div class="history-meta">
+                        <span class="history-time">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          2026-09-07 21:49:38
+                        </span>
+                        <span class="history-app-badge">API Gateway</span>
+                      </div>
+                      <div class="url-flow">
+                        <div class="url-node"><span class="node-tag source">ORIGINAL</span><span class="url-text">https://api.staging.company.com/v2/orders</span></div>
+                        <div class="flow-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+                        <div class="url-node"><span class="node-tag target">TARGET</span><span class="url-text">http://localhost:8080/v2/orders</span></div>
+                      </div>
+                      <div class="card-actions">
+                        <span class="btn-action"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy URL</span>
+                        <span class="btn-action delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>
+
+          <!-- Text Side -->
+          <div class="scene-text">
+            <div class="badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>
+              4 Powerful Tabs
+            </div>
+            <h2>Add apps in seconds. Track every redirect.</h2>
+            <p>Quick-add new URL mappings with framework port presets. Every intercepted request is automatically logged with precise timestamps, source app tags, and full URL paths for complete debugging history.</p>
+            <div class="feature-pills">
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Quick Add Form
+              </span>
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy URLs
+              </span>
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                Clear History
+              </span>
+              <span class="feature-pill">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Search & Filter
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
