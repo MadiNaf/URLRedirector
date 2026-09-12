@@ -156,13 +156,26 @@ function render() {
   renderHistoryList(historySearchQuery);
 }
 
+function sortAppsByName(appsToSort) {
+  if (!Array.isArray(appsToSort)) return [];
+
+  const sortedApps = [...appsToSort].sort((a, b) => {
+    const nameA = (a && a.name ? a.name : (a && a.sourceUrl ? a.sourceUrl : '')).trim();
+    const nameB = (b && b.name ? b.name : (b && b.sourceUrl ? b.sourceUrl : '')).trim();
+    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+  return sortedApps;
+}
+
 function renderActiveApps(activeApps) {
   activeList.innerHTML = '';
-  if (activeApps.length === 0) {
+  const sortedActiveApps = sortAppsByName(activeApps);
+
+  if (sortedActiveApps.length === 0) {
     activeEmptyState.style.display = 'flex';
   } else {
     activeEmptyState.style.display = 'none';
-    activeApps.forEach((app) => {
+    sortedActiveApps.forEach((app) => {
       const card = createActiveCardElement(app);
       activeList.appendChild(card);
     });
@@ -171,17 +184,22 @@ function renderActiveApps(activeApps) {
 
 function renderAllApps(filterQuery) {
   allAppsList.innerHTML = '';
-  const filteredApps = applications.filter((app) =>
-    app.name.toLowerCase().includes(filterQuery) ||
-    app.sourceUrl.toLowerCase().includes(filterQuery) ||
-    app.targetUrl.toLowerCase().includes(filterQuery)
-  );
+  const query = (filterQuery || '').trim().toLowerCase();
+  const filteredApps = applications.filter((app) => {
+    if (!app) return false;
+    const name = (app.name || '').toLowerCase();
+    const source = (app.sourceUrl || '').toLowerCase();
+    const target = (app.targetUrl || '').toLowerCase();
+    return name.includes(query) || source.includes(query) || target.includes(query);
+  });
 
-  if (filteredApps.length === 0) {
+  const sortedApps = sortAppsByName(filteredApps);
+
+  if (sortedApps.length === 0) {
     allEmptyState.style.display = 'flex';
   } else {
     allEmptyState.style.display = 'none';
-    filteredApps.forEach((app) => {
+    sortedApps.forEach((app) => {
       const card = createAllCardElement(app);
       allAppsList.appendChild(card);
     });
@@ -443,6 +461,16 @@ function setupTabListeners() {
       document.getElementById(targetTab).classList.add('active');
     });
   });
+
+  const linkGotoImport = document.getElementById('link-goto-import');
+  if (linkGotoImport) {
+    linkGotoImport.addEventListener('click', () => {
+      const settingsTabBtn = document.getElementById('btn-tab-settings');
+      if (settingsTabBtn) {
+        settingsTabBtn.click();
+      }
+    });
+  }
 }
 
 function setupFormListeners() {
