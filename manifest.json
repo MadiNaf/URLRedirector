@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "URLRedirector",
-  "version": "1.1.0",
-  "description": "Redirect URLs to local development environments for bug reproduction and testing with real-time request history.",
+  "name": "LocalBridge",
+  "version": "1.2.0",
+  "description": "A free & open-source extension that allows you to redirect URLs to local development environments for bug reproduction and testing with real-time request history.",
   "permissions": [
     "declarativeNetRequest",
     "storage",
