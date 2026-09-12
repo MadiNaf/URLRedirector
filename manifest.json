@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LocalBridge",
   "version": "1.2.0",
-  "description": "A free & open-source extension that allows you to redirect URLs to local development environments for bug reproduction and testing with real-time request history.",
+  "description": "Redirect web app URLs to local environments instantly. Free, open-source, and built for faster debugging and testing.",
   "permissions": [
     "declarativeNetRequest",
     "storage",
