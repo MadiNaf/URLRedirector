@@ -30,6 +30,8 @@ const searchAppsInput = document.getElementById('search-apps-input');
 const searchHistoryInput = document.getElementById('search-history-input');
 const btnClearHistory = document.getElementById('btn-clear-history');
 const btnExportApps = document.getElementById('btn-export-apps');
+const btnImportApps = document.getElementById('btn-import-apps');
+const importFileInput = document.getElementById('import-file-input');
 
 const addAppForm = document.getElementById('add-app-form');
 const appNameInput = document.getElementById('app-name');
@@ -55,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupSearchListeners();
   setupPresets();
   setupHistoryListeners();
-  setupExportListener();
+  setupSettingsListeners();
   await loadState();
 });
 
@@ -526,8 +528,10 @@ function setupHistoryListeners() {
   btnClearHistory.addEventListener('click', clearAllHistory);
 }
 
-function setupExportListener() {
+function setupSettingsListeners() {
   btnExportApps.addEventListener('click', exportApplications);
+  btnImportApps.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', importApplications);
 }
 
 function exportApplications() {
@@ -550,6 +554,101 @@ function exportApplications() {
 
   URL.revokeObjectURL(url);
   showToast(`Exported ${applications.length} application(s)`);
+}
+
+/**
+ * Normalize a URL for comparison: trim, lowercase, ensure protocol
+ */
+function normalizeUrl(url) {
+  let normalized = (url || '').trim().toLowerCase();
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = 'https://' + normalized;
+  }
+  // Remove trailing slash for consistent comparison
+  normalized = normalized.replace(/\/+$/, '');
+  return normalized;
+}
+
+/**
+ * Import applications from a JSON file, skipping duplicates by sourceUrl + targetUrl
+ */
+async function importApplications(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Reset input so the same file can be re-imported if needed
+  importFileInput.value = '';
+
+  try {
+    const text = await file.text();
+    let importedData;
+
+    try {
+      importedData = JSON.parse(text);
+    } catch (parseErr) {
+      showToast('Invalid JSON file');
+      return;
+    }
+
+    if (!Array.isArray(importedData)) {
+      showToast('Invalid format: expected an array');
+      return;
+    }
+
+    // Build a set of existing normalized sourceUrl+targetUrl pairs for fast lookup
+    const existingKeys = new Set(
+      applications.map((app) =>
+        normalizeUrl(app.sourceUrl) + '||' + normalizeUrl(app.targetUrl)
+      )
+    );
+
+    let imported = 0;
+    let skipped = 0;
+
+    for (const item of importedData) {
+      // Validate required fields
+      if (!item || !item.sourceUrl || !item.targetUrl) {
+        skipped++;
+        continue;
+      }
+
+      const key = normalizeUrl(item.sourceUrl) + '||' + normalizeUrl(item.targetUrl);
+
+      if (existingKeys.has(key)) {
+        skipped++;
+        continue;
+      }
+
+      // Normalize URLs with protocol
+      let sourceUrl = item.sourceUrl.trim();
+      let targetUrl = item.targetUrl.trim();
+      if (!/^https?:\/\//i.test(sourceUrl)) sourceUrl = 'https://' + sourceUrl;
+      if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'http://' + targetUrl;
+
+      // Create a fresh app entry
+      const newApp = {
+        id: 'app_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        name: item.name || 'Imported App',
+        sourceUrl: sourceUrl,
+        targetUrl: targetUrl,
+        enabled: true,
+        createdAt: Date.now()
+      };
+
+      applications.push(newApp);
+      existingKeys.add(key);
+      imported++;
+    }
+
+    if (imported > 0) {
+      await saveApplications();
+    }
+
+    showToast(`Imported ${imported} app(s), ${skipped} skipped`);
+  } catch (err) {
+    console.error('URL Redirector: Import error:', err);
+    showToast('Failed to import file');
+  }
 }
 
 function setupPresets() {
