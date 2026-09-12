@@ -1,4 +1,4 @@
-# URL Redirector - Chrome Extension
+# LocalBridge  - Chrome Extension
 
 ![image](./assets/URL_REDIRECTOR_1280x800.png)
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-When debugging issues in staging or test environments, developers often need to run and test fixes locally against test environment routes. **URL Redirector** intercepts web requests and routes them to your local dev environment.
+When debugging issues in staging or test environments, developers often need to run and test fixes locally against test environment routes. **Local Bridge** intercepts web requests and routes them to your local dev environment.
 
 ### Key Features
 
@@ -53,13 +53,13 @@ URLRedirector/
 3. Enable **Developer mode** using the toggle switch in the top-right corner.
 4. Click **Load unpacked** in the top-left corner.
 5. Select the project directory (`URLRedirector`).
-6. Pin **URL Redirector** to your extension toolbar for quick access.
+6. Pin **LocalBridge** to your extension toolbar for quick access.
 
 ---
 
 ## How to Use
 
-1. Click the **URL Redirector** extension icon in your Chrome toolbar.
+1. Click the **LocalBridge** extension icon in your Chrome toolbar.
 2. Go to the **Add New** tab:
    - **Application Name**: `My Test Project`
    - **Source URL**: `app-testenv.com` (or full URL `https://app-testenv.com`)
