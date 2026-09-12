@@ -29,6 +29,7 @@ const activeCountLabel = document.getElementById('active-count-label');
 const searchAppsInput = document.getElementById('search-apps-input');
 const searchHistoryInput = document.getElementById('search-history-input');
 const btnClearHistory = document.getElementById('btn-clear-history');
+const btnExportApps = document.getElementById('btn-export-apps');
 
 const addAppForm = document.getElementById('add-app-form');
 const appNameInput = document.getElementById('app-name');
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupSearchListeners();
   setupPresets();
   setupHistoryListeners();
+  setupExportListener();
   await loadState();
 });
 
@@ -522,6 +524,32 @@ function setupSearchListeners() {
 
 function setupHistoryListeners() {
   btnClearHistory.addEventListener('click', clearAllHistory);
+}
+
+function setupExportListener() {
+  btnExportApps.addEventListener('click', exportApplications);
+}
+
+function exportApplications() {
+  if (applications.length === 0) {
+    showToast('No applications to export');
+    return;
+  }
+
+  const dataStr = JSON.stringify(applications, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const timestamp = new Date().toISOString().slice(0, 10);
+  const filename = `localbridge_export_${timestamp}.json`;
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${applications.length} application(s)`);
 }
 
 function setupPresets() {
