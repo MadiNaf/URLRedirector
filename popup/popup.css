@@ -1,7 +1,7 @@
 :root {
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
-  /* Colors */
+  /* Dark Theme (Default) */
   --bg-primary: #0f172a;
   --bg-surface: #1e293b;
   --bg-surface-hover: #334155;
@@ -31,6 +31,55 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 12px rgba(99, 102, 241, 0.3);
+
+  --slider-bg: #334155;
+  --slider-knob: #ffffff;
+  --url-flow-bg: rgba(15, 23, 42, 0.6);
+  --url-flow-border: rgba(255, 255, 255, 0.04);
+  --modal-overlay-bg: rgba(15, 23, 42, 0.85);
+  --container-gradient-1: rgba(99, 102, 241, 0.12);
+  --container-gradient-2: rgba(16, 185, 129, 0.05);
+}
+
+[data-theme="light"] {
+  /* Light Theme */
+  --bg-primary: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-glass: rgba(241, 245, 249, 0.85);
+  
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-color-focus: #6366f1;
+  
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: rgba(99, 102, 241, 0.12);
+  
+  --accent-green: #059669;
+  --accent-green-bg: rgba(5, 150, 105, 0.1);
+
+  --accent-amber: #d97706;
+  --accent-amber-bg: rgba(217, 119, 6, 0.1);
+  
+  --accent-red: #dc2626;
+  --accent-red-bg: rgba(220, 38, 38, 0.1);
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 12px rgba(99, 102, 241, 0.2);
+
+  --slider-bg: #cbd5e1;
+  --slider-knob: #ffffff;
+  --url-flow-bg: rgba(241, 245, 249, 0.8);
+  --url-flow-border: rgba(0, 0, 0, 0.05);
+  --modal-overlay-bg: rgba(241, 245, 249, 0.85);
+  --container-gradient-1: rgba(99, 102, 241, 0.06);
+  --container-gradient-2: rgba(5, 150, 105, 0.03);
 }
 
 * {
@@ -147,14 +196,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 4px;
+  gap: 3px;
+  padding: 8px 2px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--text-muted);
   font-family: var(--font-family);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -383,7 +432,7 @@ body {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #334155;
+  background-color: var(--slider-bg);
   transition: .25s;
   border-radius: 20px;
 }
@@ -395,7 +444,7 @@ body {
   width: 12px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: var(--slider-knob);
   transition: .25s;
   border-radius: 50%;
 }
@@ -413,10 +462,10 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--url-flow-bg);
   padding: 8px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--url-flow-border);
 }
 
 .url-node {
@@ -469,7 +518,7 @@ input:checked + .slider:before {
   gap: 6px;
   margin-top: 6px;
   padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-action {
@@ -646,6 +695,131 @@ input:checked + .slider:before {
   color: #818cf8;
 }
 
+.add-app-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.add-app-caption svg {
+  color: var(--accent-green);
+  flex-shrink: 0;
+}
+
+.caption-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline;
+}
+
+.caption-link:hover {
+  color: var(--primary-hover);
+}
+
+/* Settings Tab */
+.settings-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.settings-group:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-group-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.settings-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.settings-group-header svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.settings-group-header h3 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.settings-group-header p {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.btn-export {
+  width: 100%;
+  padding: 9px 12px;
+  border-color: rgba(99, 102, 241, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-export:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: #818cf8;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.btn-import {
+  width: 100%;
+  padding: 9px 12px;
+  border-color: rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-import:hover {
+  background: var(--accent-green-bg);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -707,7 +881,7 @@ input:checked + .slider:before {
 .modal-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(15, 23, 42, 0.85);
+  background: var(--modal-overlay-bg);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -721,7 +895,7 @@ input:checked + .slider:before {
 }
 
 .modal-card {
-  background: #1e293b;
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   width: 100%;
@@ -762,7 +936,7 @@ input:checked + .slider:before {
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1e293b;
+  background: var(--bg-surface);
   border: 1px solid var(--primary-color);
   color: var(--text-main);
   padding: 7px 14px;

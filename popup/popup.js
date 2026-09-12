@@ -4,6 +4,7 @@
 
 const STORAGE_KEY = 'url_redirector_apps';
 const HISTORY_KEY = 'url_redirector_history';
+const THEME_KEY = 'url_redirector_theme';
 
 // State
 let applications = [];
@@ -29,6 +30,12 @@ const activeCountLabel = document.getElementById('active-count-label');
 const searchAppsInput = document.getElementById('search-apps-input');
 const searchHistoryInput = document.getElementById('search-history-input');
 const btnClearHistory = document.getElementById('btn-clear-history');
+const btnExportApps = document.getElementById('btn-export-apps');
+const btnImportApps = document.getElementById('btn-import-apps');
+const importFileInput = document.getElementById('import-file-input');
+const themeToggle = document.getElementById('theme-toggle');
+const themeLabel = document.getElementById('theme-label');
+const themeIconContainer = document.getElementById('theme-icon-container');
 
 const addAppForm = document.getElementById('add-app-form');
 const appNameInput = document.getElementById('app-name');
@@ -49,11 +56,13 @@ const toastMessage = document.getElementById('toast-message');
 
 // Initialize Extension Popup
 document.addEventListener('DOMContentLoaded', async () => {
+  await initTheme();
   setupTabListeners();
   setupFormListeners();
   setupSearchListeners();
   setupPresets();
   setupHistoryListeners();
+  setupSettingsListeners();
   await loadState();
 });
 
@@ -147,13 +156,26 @@ function render() {
   renderHistoryList(historySearchQuery);
 }
 
+function sortAppsByName(appsToSort) {
+  if (!Array.isArray(appsToSort)) return [];
+
+  const sortedApps = [...appsToSort].sort((a, b) => {
+    const nameA = (a && a.name ? a.name : (a && a.sourceUrl ? a.sourceUrl : '')).trim();
+    const nameB = (b && b.name ? b.name : (b && b.sourceUrl ? b.sourceUrl : '')).trim();
+    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+  return sortedApps;
+}
+
 function renderActiveApps(activeApps) {
   activeList.innerHTML = '';
-  if (activeApps.length === 0) {
+  const sortedActiveApps = sortAppsByName(activeApps);
+
+  if (sortedActiveApps.length === 0) {
     activeEmptyState.style.display = 'flex';
   } else {
     activeEmptyState.style.display = 'none';
-    activeApps.forEach((app) => {
+    sortedActiveApps.forEach((app) => {
       const card = createActiveCardElement(app);
       activeList.appendChild(card);
     });
@@ -162,17 +184,22 @@ function renderActiveApps(activeApps) {
 
 function renderAllApps(filterQuery) {
   allAppsList.innerHTML = '';
-  const filteredApps = applications.filter((app) =>
-    app.name.toLowerCase().includes(filterQuery) ||
-    app.sourceUrl.toLowerCase().includes(filterQuery) ||
-    app.targetUrl.toLowerCase().includes(filterQuery)
-  );
+  const query = (filterQuery || '').trim().toLowerCase();
+  const filteredApps = applications.filter((app) => {
+    if (!app) return false;
+    const name = (app.name || '').toLowerCase();
+    const source = (app.sourceUrl || '').toLowerCase();
+    const target = (app.targetUrl || '').toLowerCase();
+    return name.includes(query) || source.includes(query) || target.includes(query);
+  });
 
-  if (filteredApps.length === 0) {
+  const sortedApps = sortAppsByName(filteredApps);
+
+  if (sortedApps.length === 0) {
     allEmptyState.style.display = 'flex';
   } else {
     allEmptyState.style.display = 'none';
-    filteredApps.forEach((app) => {
+    sortedApps.forEach((app) => {
       const card = createAllCardElement(app);
       allAppsList.appendChild(card);
     });
@@ -434,6 +461,16 @@ function setupTabListeners() {
       document.getElementById(targetTab).classList.add('active');
     });
   });
+
+  const linkGotoImport = document.getElementById('link-goto-import');
+  if (linkGotoImport) {
+    linkGotoImport.addEventListener('click', () => {
+      const settingsTabBtn = document.getElementById('btn-tab-settings');
+      if (settingsTabBtn) {
+        settingsTabBtn.click();
+      }
+    });
+  }
 }
 
 function setupFormListeners() {
@@ -522,6 +559,196 @@ function setupSearchListeners() {
 
 function setupHistoryListeners() {
   btnClearHistory.addEventListener('click', clearAllHistory);
+}
+
+/**
+ * Theme Management
+ */
+async function initTheme() {
+  let savedTheme = 'dark';
+  try {
+    if (chrome.storage && chrome.storage.local) {
+      const res = await new Promise((resolve) => {
+        chrome.storage.local.get([THEME_KEY], resolve);
+      });
+      if (res && res[THEME_KEY]) {
+        savedTheme = res[THEME_KEY];
+      }
+    }
+  } catch (err) {
+    console.error('URL Redirector: Failed to load theme preference', err);
+  }
+  applyTheme(savedTheme);
+}
+
+const MOON_ICON_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+</svg>`;
+
+const SUN_ICON_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="5"></circle>
+  <line x1="12" y1="1" x2="12" y2="3"></line>
+  <line x1="12" y1="21" x2="12" y2="23"></line>
+  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+  <line x1="1" y1="12" x2="3" y2="12"></line>
+  <line x1="21" y1="12" x2="23" y2="12"></line>
+  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+</svg>`;
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    if (themeToggle) themeToggle.checked = false;
+    if (themeLabel) themeLabel.textContent = 'Light mode';
+    if (themeIconContainer) themeIconContainer.innerHTML = SUN_ICON_SVG;
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if (themeToggle) themeToggle.checked = true;
+    if (themeLabel) themeLabel.textContent = 'Dark Mode';
+    if (themeIconContainer) themeIconContainer.innerHTML = MOON_ICON_SVG;
+  }
+}
+
+function setupSettingsListeners() {
+  btnExportApps.addEventListener('click', exportApplications);
+  btnImportApps.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', importApplications);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('change', async (e) => {
+      const newTheme = e.target.checked ? 'dark' : 'light';
+      applyTheme(newTheme);
+      try {
+        if (chrome.storage && chrome.storage.local) {
+          await new Promise((resolve) => {
+            chrome.storage.local.set({ [THEME_KEY]: newTheme }, resolve);
+          });
+        }
+      } catch (err) {
+        console.error('URL Redirector: Failed to save theme preference', err);
+      }
+      showToast(`Theme switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} mode`);
+    });
+  }
+}
+
+function exportApplications() {
+  if (applications.length === 0) {
+    showToast('No applications to export');
+    return;
+  }
+
+  const dataStr = JSON.stringify(applications, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const timestamp = new Date().toISOString().slice(0, 10);
+  const filename = `localbridge_export_${timestamp}.json`;
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${applications.length} application(s)`);
+}
+
+/**
+ * Normalize a URL for comparison: trim, lowercase, ensure protocol
+ */
+function normalizeUrl(url) {
+  let normalized = (url || '').trim().toLowerCase();
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = 'https://' + normalized;
+  }
+  // Remove trailing slash for consistent comparison
+  normalized = normalized.replace(/\/+$/, '');
+  return normalized;
+}
+
+/**
+ * Import applications from a JSON file, skipping duplicates by sourceUrl + targetUrl
+ */
+async function importApplications(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Reset input so the same file can be re-imported if needed
+  importFileInput.value = '';
+
+  try {
+    const text = await file.text();
+    let importedData;
+
+    try {
+      importedData = JSON.parse(text);
+    } catch (parseErr) {
+      showToast('Invalid JSON file');
+      return;
+    }
+
+    if (!Array.isArray(importedData)) {
+      showToast('Invalid format: expected an array');
+      return;
+    }
+
+    // Build a set of existing normalized sourceUrl+targetUrl pairs for fast lookup
+    const existingKeys = new Set(
+      applications.map((app) =>
+        normalizeUrl(app.sourceUrl) + '||' + normalizeUrl(app.targetUrl)
+      )
+    );
+
+    let imported = 0;
+    let skipped = 0;
+
+    for (const item of importedData) {
+      // Validate required fields
+      if (!item || !item.sourceUrl || !item.targetUrl) {
+        skipped++;
+        continue;
+      }
+
+      const key = normalizeUrl(item.sourceUrl) + '||' + normalizeUrl(item.targetUrl);
+
+      if (existingKeys.has(key)) {
+        skipped++;
+        continue;
+      }
+
+      // Normalize URLs with protocol
+      let sourceUrl = item.sourceUrl.trim();
+      let targetUrl = item.targetUrl.trim();
+      if (!/^https?:\/\//i.test(sourceUrl)) sourceUrl = 'https://' + sourceUrl;
+      if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'http://' + targetUrl;
+
+      // Create a fresh app entry
+      const newApp = {
+        id: 'app_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        name: item.name || 'Imported App',
+        sourceUrl: sourceUrl,
+        targetUrl: targetUrl,
+        enabled: true,
+        createdAt: Date.now()
+      };
+
+      applications.push(newApp);
+      existingKeys.add(key);
+      imported++;
+    }
+
+    if (imported > 0) {
+      await saveApplications();
+    }
+
+    showToast(`Imported ${imported} app(s), ${skipped} skipped`);
+  } catch (err) {
+    console.error('URL Redirector: Import error:', err);
+    showToast('Failed to import file');
+  }
 }
 
 function setupPresets() {
